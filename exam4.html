@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Animal CRUD</title>
+</head>
+<body>
+  <h1>Animal CRUD</h1>
+  
+  <form id="animalForm">
+    <label for="nameInput">Name:</label>
+    <input type="text" id="nameInput" required /><br />
+    <label for="lifespanInput">Lifespan:</label>
+    <input type="number" id="lifespanInput" required /><br />
+    <button type="button" onclick="animalManager.addAnimal()">Add Animal</button>
+    <button type="button" onclick="animalManager.updateAnimal()">Update Animal</button>
+  </form>
+  
+  <ul id="animalList"></ul>
+
+  <div>
+    <label for="yearsInput">Years:</label>
+    <input type="number" id="yearsInput" required /><br />
+    <p>Number of Animals Alive After N Years: <span id="animalCount">0</span></p>
+  </div>
+  
+  <script>
+    class Animal {
+      constructor(name, lifespan) {
+        this.name = name;
+        this.lifespan = lifespan;
+      }
+    }
+
+    class AnimalManager {
+      constructor() {
+        this.animals = [];
+        this.selectedIndex = -1;
+      }
+
+      addAnimal() {
+        const name = document.getElementById('nameInput').value;
+        const lifespan = parseInt(document.getElementById('lifespanInput').value);
+
+        if (name && lifespan) {
+          const animal = new Animal(name, lifespan);
+          this.animals.push(animal);
+          this.renderAnimals();
+          this.updateAnimalCount();
+        }
+      }
+
+      updateAnimal() {
+        const name = document.getElementById('nameInput').value;
+        const lifespan = parseInt(document.getElementById('lifespanInput').value);
+
+        if (name && lifespan && this.selectedIndex !== -1) {
+          const animal = this.animals[this.selectedIndex];
+          animal.name = name;
+          animal.lifespan = lifespan;
+          this.renderAnimals();
+          this.updateAnimalCount();
+          this.clearForm();
+        }
+      }
+
+      renderAnimals() {
+        const animalList = document.getElementById('animalList');
+        animalList.innerHTML = '';
+
+        if (this.animals.length === 0) {
+          animalList.innerHTML = '<li>No animals found.</li>';
+        } else {
+          this.animals.forEach((animal, index) => {
+            const li = document.createElement('li');
+            li.innerText = 'Name: ' + animal.name + ', Lifespan: ' + animal.lifespan;
+
+            const updateButton = document.createElement('button');
+            updateButton.innerText = 'Update';
+            updateButton.addEventListener('click', () => this.selectAnimal(index));
+            li.appendChild(updateButton);
+
+            animalList.appendChild(li);
+          });
+        }
+      }
+
+      selectAnimal(index) {
+        this.selectedIndex = index;
+        const animal = this.animals[index];
+        document.getElementById('nameInput').value = animal.name;
+        document.getElementById('lifespanInput').value = animal.lifespan;
+      }
+
+      updateAnimalCount() {
+        const years = parseInt(document.getElementById('yearsInput').value);
+        const count = this.animals.reduce((total, animal) => {
+          if (animal.lifespan >= years) {
+            return total + 1;
+          } else {
+            return total;
+          }
+        }, 0);
+
+        document.getElementById('animalCount').innerText = count;
+      }
+
+      clearForm() {
+        document.getElementById('nameInput').value = '';
+        document.getElementById('lifespanInput').value = '';
+        this.selectedIndex = -1;
+      }
+    }
+
+    const animalManager = new AnimalManager();
+  </script>
+</body>
+</html>
